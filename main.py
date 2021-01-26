@@ -25,10 +25,10 @@ for col in sheet.iter_cols(min_col=3, min_row=2):
 
 
 def check_balance():
-    index_cell_1 = names.index(name_prompt) + 2
+    cell_index = names.index(name_prompt) + 2
     if balances[names.index(name_prompt)] >= cart_total:
         balance = int(balances[names.index(name_prompt)] - cart_total)
-        sheet[f"C{index_cell_1}"] = balance
+        sheet[f"C{cell_index}"] = balance
         print(f"${cart_total} was credited from your account")
         print(f"Remaining Balance is $ {balance:,}")
         wb.save("customers.xlsx")
@@ -40,6 +40,32 @@ def get_items():
     print("Please add options from the list below: ")
     for number, part in enumerate(available_names):
         print("{0}: {1}".format(number + 1, part))
+    print("\nUse 'rem' to remove items from cart")
+
+
+def cart_reader():
+    new_list = []
+    summation = 0
+
+    if len(cart) >= 1:
+        print("These are the items in your cart: ")
+
+        for cart_items in cart:
+            summation += available_names_prices[cart_items]
+
+            if cart_items not in new_list:
+                new_list.append(cart_items)
+
+                if cart.count(cart_items) > 1:
+                    print(f"{cart_items} * {cart.count(cart_items)}")
+
+                else:
+                    print(f"{cart_items} * 1")
+
+        print(f"\nThe total cost is ${summation}")
+
+    else:
+        print("The cart is empty. Please add some items.")
 
 
 # Reading all the contents of the .txt file in one-go
@@ -97,27 +123,7 @@ if __name__ == "__main__":
             print(f"{chosen_part} Added")
 
         elif current_choice.lower() == "cart":
-            new_list = []
-
-            if len(cart) >= 1:
-                print("These are the items in your cart: ")
-
-                for items in cart:
-                    cart_total += available_names_prices[items]
-
-                    if items not in new_list:
-                        new_list.append(items)
-
-                        if cart.count(items) > 1:
-                            print(f"{items} * {cart.count(items)}")
-
-                        else:
-                            print(items)
-
-                print(f"\nThe total cost is ${cart_total}")
-
-            else:
-                print("The cart is empty. Please add some items.")
+            cart_reader()
 
         elif current_choice.lower() in ("list", "options", "items"):
             get_items()
@@ -167,6 +173,17 @@ if __name__ == "__main__":
 
             else:
                 print("There's nothing in the cart.")
+
+        elif current_choice[:3] == "rem":
+            if len(cart) >= 1:
+                for i in cart:
+                    if current_choice[4:] != "" and available_names[int(current_choice[4:])-1] in i:
+                        cart.remove(available_names[int(current_choice[4:])-1])
+                        print(f"{available_names[int(current_choice[4:])-1]} removed\n")
+                        time.sleep(2)
+                        cart_reader()
+            else:
+                print("There's nothing in the cart")
 
         elif current_choice not in available_names and valid_choices:
             if count > 1:
