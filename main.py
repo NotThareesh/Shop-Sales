@@ -41,6 +41,7 @@ def get_items():
     for number, part in enumerate(available_names):
         print("{0}: {1}".format(number + 1, part))
 
+
 # Reading all the contents of the .txt file in one-go
 with open("items.txt", "r") as items_file:
     items_file_read = items_file.readlines()
